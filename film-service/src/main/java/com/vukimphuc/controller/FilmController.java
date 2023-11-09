@@ -5,6 +5,7 @@ import com.vukimphuc.dto.request.FilmDto;
 import com.vukimphuc.service.FilmService;
 import com.vukimphuc.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*")
@@ -17,8 +18,9 @@ public class FilmController {
     @Autowired
     private FilmService filmService;
 
-    @PostMapping("/create-film")
-    public Result createFilm(@RequestBody FilmDto filmDto) {
-        return Result.fail();
+    @PostMapping(value = "/create-film")
+    public Result createFilm(@ModelAttribute FilmDto filmDto) {
+        Result result = filmService.createFilm(filmDto);
+        return result;
     }
 }

@@ -25,7 +25,7 @@ public class CloudinaryService {
         Map uploadResult = cloudinary.uploader().upload(multipartFile.getBytes(), params);
 
         Map<String, String> result = new HashMap<>();
-        result.put("publicId", uploadResult.get("publicId").toString());
+        result.put("publicId", uploadResult.get("public_id").toString());
         result.put("url", uploadResult.get("url").toString());
         return result;
     }

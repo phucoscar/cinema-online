@@ -14,8 +14,11 @@ public class Thumnail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "source")
-    private String src;
+    @Column(name = "url")
+    private String url;
+
+    @Column(name = "publicId")
+    private String publicId;
 
     @ManyToOne
     @JoinColumn(name = "film_id", nullable = false)

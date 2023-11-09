@@ -1,5 +1,6 @@
 package com.vukimphuc.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -24,6 +25,7 @@ public class Film {
     @JoinTable(name = "film_type",
         joinColumns = @JoinColumn(name = "film_id"),
         inverseJoinColumns = @JoinColumn(name = "type_id"))
+    @JsonIgnore
     private List<Type> types;
 
     @Column(name = "description")
@@ -36,8 +38,10 @@ public class Film {
     private Integer duration;
 
     @OneToMany(mappedBy = "film", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Thumnail> thumnails;
 
     @OneToMany(mappedBy = "film", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Rating> ratings;
 }
