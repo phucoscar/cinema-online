@@ -39,6 +39,12 @@ public class FilmServiceImpl implements FilmService {
     private ThumbnailsRepository thumbnailsRepository;
 
 
+    @Override
+    public Result getAllFilms() {
+        List<Film> films = filmRepository.findAll();
+        return Result.success("Success", films);
+    }
+
     @Transactional
     @Override
     public Result createFilm(FilmDto filmDto) {
@@ -70,6 +76,56 @@ public class FilmServiceImpl implements FilmService {
         filmRepository.save(film);
         thumbnailsRepository.saveAll(thumnails);
         return Result.success("Success", film);
+    }
+
+    @Override
+    public Result editFilm(FilmDto filmDto) {
+        Integer id = filmDto.getId();
+        Optional<Film> op = filmRepository.findById(id);
+        if (!op.isPresent())
+            return Result.fail("Film not found");
+        Film film = op.get();
+        film.setName(filmDto.getName());
+        film.setDescription(filmDto.getDescription());
+        try {
+            Date releaseDate = convertToDate(filmDto.getReleaseDate());
+            film.setReleaseDate(releaseDate);
+        } catch (ParseException ex) {
+            return Result.fail("Release date is invalid");
+        }
+        film.setDuration(filmDto.getDuration());
+        List<Type> types = getListFilmTypes(filmDto.getTypeIds());
+        film.setTypes(types);
+        filmRepository.save(film);
+        return Result.success("Success", film);
+    }
+
+    @Override
+    public Result getFilmById(Integer id) {
+        Optional<Film> op = filmRepository.findById(id);
+        if (!op.isPresent())
+            return Result.fail("Film not found");
+        Film film = op.get();
+        return Result.success("Success", film);
+    }
+
+    @Transactional
+    @Override
+    public Result deleteFilmById(Integer id) {
+        Optional<Film> op = filmRepository.findById(id);
+        if (!op.isPresent())
+            return Result.fail("Film not found");
+        Film film = op.get();
+        List<Thumnail> thumnails = film.getThumnails();
+        for(Thumnail thumnail: thumnails) {
+            try {
+                cloudinaryService.deleteFile(thumnail.getPublicId());
+            } catch (IOException e){
+                return Result.fail("Error while detele thumnail");
+            }
+        }
+        filmRepository.delete(film);
+        return Result.success("Suceess", film);
     }
 
     private Date convertToDate(String strDate) throws ParseException {

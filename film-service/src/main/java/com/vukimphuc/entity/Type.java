@@ -1,5 +1,6 @@
 package com.vukimphuc.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,5 +21,6 @@ public class Type {
     private String name;
 
     @ManyToMany(mappedBy = "types")
+    @JsonIgnore
     private List<Film> films;
 }

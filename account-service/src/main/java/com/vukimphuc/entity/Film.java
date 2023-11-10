@@ -35,9 +35,9 @@ public class Film {
     @Column(name = "duration")
     private Integer duration;
 
-    @OneToMany(mappedBy = "film", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "film", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Thumnail> thumnails;
 
-    @OneToMany(mappedBy = "film", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "film", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Rating> ratings;
 }

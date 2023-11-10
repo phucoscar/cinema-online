@@ -1,5 +1,6 @@
 package com.vukimphuc.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,5 +23,6 @@ public class Thumnail {
 
     @ManyToOne
     @JoinColumn(name = "film_id", nullable = false)
+    @JsonIgnore
     private Film film;
 }

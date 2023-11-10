@@ -25,7 +25,6 @@ public class Film {
     @JoinTable(name = "film_type",
         joinColumns = @JoinColumn(name = "film_id"),
         inverseJoinColumns = @JoinColumn(name = "type_id"))
-    @JsonIgnore
     private List<Type> types;
 
     @Column(name = "description")
@@ -37,11 +36,9 @@ public class Film {
     @Column(name = "duration")
     private Integer duration;
 
-    @OneToMany(mappedBy = "film", fetch = FetchType.LAZY)
-    @JsonIgnore
+    @OneToMany(mappedBy = "film", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Thumnail> thumnails;
 
-    @OneToMany(mappedBy = "film", fetch = FetchType.LAZY)
-    @JsonIgnore
+    @OneToMany(mappedBy = "film", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Rating> ratings;
 }
