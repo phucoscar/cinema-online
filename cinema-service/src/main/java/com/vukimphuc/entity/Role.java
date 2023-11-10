@@ -1,5 +1,6 @@
 package com.vukimphuc.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -7,10 +8,10 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "cinema")
+@Table(name = "role")
 @Data
 @NoArgsConstructor
-public class Cinema {
+public class Role {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,13 +20,7 @@ public class Cinema {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "address")
-    private String address;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "admin_id", nullable = false)
-    private User admin;
-
-    @OneToMany(mappedBy = "cinema", fetch = FetchType.LAZY)
-    private List<Room> rooms;
+    @OneToMany(mappedBy = "role")
+    @JsonIgnore
+    private List<User> users;
 }

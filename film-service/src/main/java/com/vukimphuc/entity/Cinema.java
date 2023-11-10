@@ -22,6 +22,10 @@ public class Cinema {
     @Column(name = "address")
     private String address;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id", nullable = false)
+    private User admin;
+
     @OneToMany(mappedBy = "cinema", fetch = FetchType.LAZY)
     private List<Room> rooms;
 }

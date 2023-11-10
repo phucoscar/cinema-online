@@ -44,4 +44,7 @@ public class User {
     @JoinColumn(name = "role_id", nullable = false)
     @JsonIgnore
     private Role role;
+
+    @OneToOne(mappedBy = "admin", cascade = CascadeType.ALL)
+    private Cinema managedCinema;
 }
