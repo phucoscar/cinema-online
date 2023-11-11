@@ -46,5 +46,6 @@ public class User {
     private Role role;
 
     @OneToOne(mappedBy = "admin", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Cinema managedCinema;
 }

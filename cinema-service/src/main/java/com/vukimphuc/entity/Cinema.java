@@ -1,5 +1,6 @@
 package com.vukimphuc.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,10 +23,11 @@ public class Cinema {
     @Column(name = "address")
     private String address;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "admin_id", nullable = false)
     private User admin;
 
     @OneToMany(mappedBy = "cinema", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Room> rooms;
 }
