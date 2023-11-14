@@ -1,4 +1,4 @@
-package com.vukimphuc.entity;
+package com.example.schedulesevice.entity;
 
 
 import lombok.Data;

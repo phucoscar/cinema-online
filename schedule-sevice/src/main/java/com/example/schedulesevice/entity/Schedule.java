@@ -1,11 +1,10 @@
-package com.vukimphuc.entity;
+package com.example.schedulesevice.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Table(name = "schedule")

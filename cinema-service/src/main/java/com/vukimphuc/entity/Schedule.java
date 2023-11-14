@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "schedule")
@@ -17,10 +17,10 @@ public class Schedule {
     private Integer id;
 
     @Column(name = "startTime")
-    private Date startTime;
+    private LocalDateTime startTime;
 
     @Column(name = "endTime")
-    private Date endTime;
+    private LocalDateTime endTime;
 
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)

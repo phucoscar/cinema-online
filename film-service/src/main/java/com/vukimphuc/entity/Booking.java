@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -26,7 +26,7 @@ public class Booking {
     private Film film;
 
     @Column(name = "booking_time")
-    private Date bookingTime;
+    private LocalDateTime bookingTime;
 
     @OneToMany(mappedBy = "booking")
     private List<Ticket> tickets;
