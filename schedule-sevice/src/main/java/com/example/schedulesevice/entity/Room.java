@@ -1,5 +1,6 @@
 package com.example.schedulesevice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -30,6 +31,7 @@ public class Room {
     private Cinema cinema;
 
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Schedule> schedules;
 }
 

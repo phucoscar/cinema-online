@@ -23,6 +23,10 @@ public class Schedule {
     private LocalDateTime endTime;
 
     @ManyToOne
+    @JoinColumn(name = "film_id", nullable = false)
+    private Film film;
+
+    @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
 }

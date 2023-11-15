@@ -31,6 +31,7 @@ public class Room {
     private Cinema cinema;
 
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Schedule> schedules;
 }
 
