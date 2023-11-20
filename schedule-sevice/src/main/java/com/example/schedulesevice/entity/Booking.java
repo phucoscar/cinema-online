@@ -21,10 +21,6 @@ public class Booking {
     @ManyToMany
     private List<User> user;
 
-    @ManyToOne
-    @JoinColumn(name = "film_id")
-    private Film film;
-
     @Column(name = "booking_time")
     private LocalDateTime bookingTime;
 

@@ -5,4 +5,8 @@ import com.phucvukimcore.base.Result;
 
 public interface ScheduleService {
     Result scheduleShow(ScheduleDto dto);
+
+    Result findAllCurrentScheduleInCinema(Integer cinemaId);
+
+    Result findAllScheduleInCinemaByDay(Integer cinemaId, String date);
 }

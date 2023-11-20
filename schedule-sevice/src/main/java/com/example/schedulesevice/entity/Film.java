@@ -35,6 +35,9 @@ public class Film {
     @Column(name = "duration")
     private Integer duration;
 
+    @Column(name = "score_avg")
+    private Float score;
+
     @OneToMany(mappedBy = "film", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Thumnail> thumnails;
 

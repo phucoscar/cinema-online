@@ -69,6 +69,11 @@ public class AuthController {
         return result ;
     }
 
+    @GetMapping("/verify-token")
+    public Result refreshRequest(@RequestHeader(value = "Auth") String token) {
+        return Result.success();
+    }
+
     @PostMapping("/change-password")
     public Result signup(@RequestHeader(value = "Auth") String token,
                          @RequestParam String oldPassword,
