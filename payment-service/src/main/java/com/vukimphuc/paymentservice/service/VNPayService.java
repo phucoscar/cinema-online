@@ -2,7 +2,7 @@ package com.vukimphuc.paymentservice.service;
 
 import com.vukimphuc.paymentservice.helpers.VNPayHepler;
 import com.vukimphuc.paymentservice.constants.VNPayConstant;
-import com.vukimphuc.paymentservice.dto.OrderRequestDTO;
+import com.vukimphuc.paymentservice.dto.request.OrderRequestDTO;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +20,7 @@ public class VNPayService {
             put("vnp_Command", VNPayConstant.VNP_COMMAND_ORDER);
             put("vnp_TmnCode", VNPayConstant.VNP_TMN_CODE);
             put("vnp_Amount", String.valueOf(orderRequestDTO.getAmount() * 100));
+            put("vnp_BankCode", VNPayConstant.VNP_BANK_CODE);
             put("vnp_CurrCode", VNPayConstant.VNP_CURRENCY_CODE);
             put("vnp_TxnRef",  VNPayHepler.getRandomNumber(8));
             put("vnp_OrderInfo", orderRequestDTO.getOrderInfor());

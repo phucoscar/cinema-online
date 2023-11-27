@@ -1,4 +1,4 @@
-package com.vukimphuc.paymentservice.dto;
+package com.vukimphuc.paymentservice.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
