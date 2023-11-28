@@ -4,28 +4,29 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "rating")
+@Table(name = "schedule")
 @Data
 @NoArgsConstructor
-public class Rating {
+public class Schedule {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "star")
-    private Integer star;
+    @Column(name = "startTime")
+    private LocalDateTime startTime;
 
-    @Column(name = "comment")
-    private String comment;
+    @Column(name = "endTime")
+    private LocalDateTime endTime;
 
     @ManyToOne
     @JoinColumn(name = "film_id", nullable = false)
     private Film film;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    @ManyToOne
+    @JoinColumn(name = "room_id", nullable = false)
+    private Room room;
 }

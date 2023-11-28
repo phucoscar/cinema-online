@@ -5,13 +5,16 @@ import com.phucvukimcore.base.Result;
 import com.vukimphuc.cloudinary.CloudinaryService;
 import com.vukimphuc.dto.request.FilmDto;
 import com.vukimphuc.entity.Film;
+import com.vukimphuc.entity.Rating;
 import com.vukimphuc.entity.Thumnail;
 import com.vukimphuc.entity.Type;
 import com.vukimphuc.repository.FilmRepository;
 import com.vukimphuc.repository.FilmTypeRepository;
+import com.vukimphuc.repository.RatingRepository;
 import com.vukimphuc.repository.ThumbnailsRepository;
 import com.vukimphuc.service.FilmService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +23,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class FilmServiceImpl implements FilmService {
@@ -38,6 +42,8 @@ public class FilmServiceImpl implements FilmService {
     @Autowired
     private ThumbnailsRepository thumbnailsRepository;
 
+    @Autowired
+    private RatingRepository ratingRepository;
 
     @Override
     public Result getAllFilms() {
@@ -140,5 +146,26 @@ public class FilmServiceImpl implements FilmService {
             op.ifPresent(types::add);
         }
         return types;
+    }
+
+    @Override
+    public Result updateAvgScore(Integer filmId) {
+        Optional<Film> op = filmRepository.findById(filmId);
+        if (!op.isPresent())
+            return Result.fail("Phim không tồn tại");
+        Film film = op.get();
+        List<Rating> ratings = ratingRepository.findAllByFilm(film);
+        if (ratings == null || ratings.isEmpty())
+            return Result.success();
+        List<Integer> stars = ratings.stream().map(Rating::getStar).collect(Collectors.toList());
+        int sum = 0;
+        for (Integer star: stars) {
+            sum += star;
+        }
+
+        float avgScore = (float) sum / stars.size();
+        avgScore = (float) (Math.round(avgScore * Math.pow(10, 1)) / Math.pow(10, 1));
+        film.setScore(avgScore);
+        return Result.success("Success",filmRepository.save(film));
     }
 }

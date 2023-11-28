@@ -20,10 +20,13 @@ public class FilmController {
     public Result getFilmById(@PathVariable Integer id) {
         return filmService.getFilmById(id);
     }
-
     @GetMapping
     public Result getAllFilms() {
         return filmService.getAllFilms();
     }
 
+    @GetMapping("/update-score")
+    public Result updateFilmRatingScore(@RequestParam Integer filmId) {
+        return filmService.updateAvgScore(filmId);
+    }
 }

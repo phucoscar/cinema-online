@@ -1,4 +1,4 @@
-package com.example.schedulesevice.entity;
+package com.vukimphuc.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
@@ -7,27 +7,22 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "rating")
+@Table(name = "thumnail")
 @Data
 @NoArgsConstructor
-public class Rating {
-
+public class Thumnail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "star")
-    private Integer star;
+    @Column(name = "url")
+    private String url;
 
-    @Column(name = "comment")
-    private String comment;
+    @Column
+    private String publicId;
 
     @ManyToOne
     @JoinColumn(name = "film_id", nullable = false)
     @JsonIgnore
     private Film film;
-
-    @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
 }
