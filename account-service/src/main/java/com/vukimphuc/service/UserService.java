@@ -13,7 +13,13 @@ public interface UserService {
 
     Result register(RegisterDto dto, boolean isAdmin);
 
+    Result verifyToken(String token);
+
     Result changePassword(String token, String oldPassword, String newPassword);
 
     Result blockUser(Integer id);
+
+    Result findAllCustomerAccount();
+
+    Result findAllAdminAccount();
 }

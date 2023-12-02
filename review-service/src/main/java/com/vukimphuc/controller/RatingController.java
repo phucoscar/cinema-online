@@ -18,4 +18,9 @@ public class RatingController {
     public Result createRating(@RequestBody RatingDTO ratingDTO) {
         return ratingService.createRating(ratingDTO);
     }
+
+    @GetMapping("/all-films-ratings")
+    public Result getAllRatingsOfFilm(@RequestParam Integer filmId) {
+        return Result.success();
+    }
 }

@@ -50,7 +50,7 @@ public class AuthController {
             LoginResponse response = userService.convertToLoginResp(user, token);
             return new Result(200, "Success", response);
         } catch (Exception e) {
-            return Result.fail("Wrong username or password");
+            return Result.fail("Tên đăng nhập hoặc mật khẩu không chính xác");
         }
     }
 
@@ -71,7 +71,7 @@ public class AuthController {
 
     @GetMapping("/verify-token")
     public Result refreshRequest(@RequestHeader(value = "Auth") String token) {
-        return Result.success();
+        return userService.verifyToken(token);
     }
 
     @PostMapping("/change-password")

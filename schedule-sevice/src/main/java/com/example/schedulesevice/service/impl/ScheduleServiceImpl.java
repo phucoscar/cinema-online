@@ -37,13 +37,13 @@ public class ScheduleServiceImpl implements ScheduleService {
             return Result.fail(error);
         Optional<Film> op1 = filmRepository.findById(dto.getFilmId());
         if (!op1.isPresent())
-            return Result.fail("Film not found");
+            return Result.fail("Không tìm thấy phim");
         Film film = op1.get();;
         Integer durations = film.getDuration(); // in seconds
         LocalDateTime endTime = startTime.plusMinutes(durations);
         Optional<Room> op2 = roomRepository.findById(dto.getRoomId());
         if (!op2.isPresent())
-            return Result.fail("Room not found");
+            return Result.fail("Không tìm thấy phòng");
         Room room = op2.get();
         Schedule schedule = new Schedule();
         schedule.setStartTime(startTime);
@@ -63,10 +63,15 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public Result findAllCurrentScheduleInCinema(Integer cinemaId) {
-       // Room room = roomRepository.findByCinemaId(cinemaId);
-        /*
-        * Lấy những schedule có ngày start từ now -> 6 ngày kế tiếp
-        * */
+       return null;
+    }
+
+    @Override
+    public Result findAllHistoryScheduleInCinema(Integer cinemaId) {
+        return null;
+    }
+
+    private List<Schedule> findScheduleByTimeOption(boolean history) {
         return null;
     }
 

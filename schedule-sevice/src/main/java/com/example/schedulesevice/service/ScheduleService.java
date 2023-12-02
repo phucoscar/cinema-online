@@ -8,5 +8,7 @@ public interface ScheduleService {
 
     Result findAllCurrentScheduleInCinema(Integer cinemaId);
 
+    Result findAllHistoryScheduleInCinema(Integer cinemaId);
+
     Result findAllScheduleInCinemaByDay(Integer cinemaId, String date);
 }
