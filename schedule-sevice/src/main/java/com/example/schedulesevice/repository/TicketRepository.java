@@ -9,4 +9,7 @@ import java.util.List;
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Integer> {
     List<Ticket> findByScheduleId(Integer id);
+
+    Integer countByScheduleId(Integer id);
+
 }

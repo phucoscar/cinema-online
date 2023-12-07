@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -61,5 +62,11 @@ public class RatingServiceImpl implements RatingService {
         Result result = restTemplate.getForObject(builder.toUriString(), Result.class);
 
         return Result.success("Success", result);
+    }
+
+    @Override
+    public Result getFilmRatings(Integer filmId) {
+        List<Rating> ratings = ratingRepository.findAllByFilmId(filmId);
+        return Result.success("Success", ratings);
     }
 }

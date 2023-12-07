@@ -1,13 +1,10 @@
 package com.example.schedulesevice.service.impl;
 
 import com.example.schedulesevice.dto.request.ScheduleDto;
+import com.example.schedulesevice.dto.response.ScheduleResponse;
 import com.example.schedulesevice.dto.response.ShowResponse;
-import com.example.schedulesevice.entity.Film;
-import com.example.schedulesevice.entity.Room;
-import com.example.schedulesevice.entity.Schedule;
-import com.example.schedulesevice.repository.FilmRepository;
-import com.example.schedulesevice.repository.RoomRepository;
-import com.example.schedulesevice.repository.ScheduleRepository;
+import com.example.schedulesevice.entity.*;
+import com.example.schedulesevice.repository.*;
 import com.example.schedulesevice.service.ScheduleService;
 import com.phucvukimcore.base.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +26,12 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Autowired
     private RoomRepository roomRepository;
 
+    @Autowired
+    private CinemaRepository cinemaRepository;
+
+    @Autowired
+    private TicketRepository ticketRepository;
+
     @Override
     public Result scheduleShow(ScheduleDto dto) {
         LocalDateTime startTime = convertToLocalDateTimeFromString(dto.getStartTime());
@@ -38,7 +41,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         Optional<Film> op1 = filmRepository.findById(dto.getFilmId());
         if (!op1.isPresent())
             return Result.fail("Không tìm thấy phim");
-        Film film = op1.get();;
+        Film film = op1.get();
         Integer durations = film.getDuration(); // in seconds
         LocalDateTime endTime = startTime.plusMinutes(durations);
         Optional<Room> op2 = roomRepository.findById(dto.getRoomId());
@@ -62,17 +65,123 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    public Result editSchedule(ScheduleDto dto) {
+
+        Optional<Schedule> optional = scheduleRepository.findById(dto.getId());
+        if (!optional.isPresent())
+            return Result.fail("Lịch chiếu không tồn tại!");
+
+        if (isBooked(dto.getId()))
+            return Result.fail("Không thể chỉnh sửa do lịch chiếu đã được đặt bởi khách hàng!");
+
+        Schedule schedule = optional.get();
+
+        LocalDateTime startTime = convertToLocalDateTimeFromString(dto.getStartTime());
+        String error = checkTime(startTime);
+        if (error != null)
+            return Result.fail(error);
+        Optional<Film> op1 = filmRepository.findById(dto.getFilmId());
+        if (!op1.isPresent())
+            return Result.fail("Không tìm thấy phim");
+        Film film = op1.get();
+        Integer durations = film.getDuration(); // in seconds
+        LocalDateTime endTime = startTime.plusMinutes(durations);
+        Optional<Room> op2 = roomRepository.findById(dto.getRoomId());
+        if (!op2.isPresent())
+            return Result.fail("Không tìm thấy phòng");
+        Room room = op2.get();
+
+        schedule.setStartTime(startTime);
+        schedule.setEndTime(endTime);
+        schedule.setFilm(film);
+        schedule.setRoom(room);
+
+        scheduleRepository.save(schedule);
+
+        return Result.success("Success", schedule);
+    }
+
+    @Override
+    public Result deleteSchedule(Integer scheduleId) {
+
+        Optional<Schedule> optional = scheduleRepository.findById(scheduleId);
+        if (!optional.isPresent())
+            return Result.fail("Lịch chiếu không tồn tại!");
+
+        if (isBooked(scheduleId))
+            return Result.fail("Không thể xóa do lịch chiếu đã được đặt bởi khách hàng!");
+
+        scheduleRepository.delete(optional.get());
+        return Result.success();
+    }
+
+    @Override
     public Result findAllCurrentScheduleInCinema(Integer cinemaId) {
-       return null;
+
+        Optional<Cinema> op = cinemaRepository.findById(cinemaId);
+        if (!op.isPresent()) {
+            return Result.fail("Rạp phim không tồn tại");
+        }
+
+        List<Schedule> schedules = findScheduleByTimeOption(op.get(), false);
+        Collections.sort(schedules, Comparator.comparing(Schedule::getStartTime));
+        Collections.reverse(schedules);
+        List<ScheduleResponse> responses = new ArrayList<>();
+
+        for (Schedule schedule: schedules) {
+            ScheduleResponse response = new ScheduleResponse();
+            response.setSchedule(schedule);
+
+            Room room = schedule.getRoom();
+            int totalSeats = room.getHorizontalSeats() * room.getVerticalSeats();
+            response.setTotalSeats(totalSeats);
+            int booked = ticketRepository.countByScheduleId(schedule.getId());
+            response.setAvailables(totalSeats - booked);
+
+            responses.add(response);
+        }
+
+        return Result.success("Success", responses);
     }
 
     @Override
     public Result findAllHistoryScheduleInCinema(Integer cinemaId) {
-        return null;
+        Optional<Cinema> op = cinemaRepository.findById(cinemaId);
+        if (!op.isPresent()) {
+            return Result.fail("Rạp phim không tồn tại");
+        }
+
+        List<Schedule> schedules = findScheduleByTimeOption(op.get(), true);
+        Collections.sort(schedules, Comparator.comparing(Schedule::getStartTime));
+        Collections.reverse(schedules);
+        List<ScheduleResponse> responses = new ArrayList<>();
+
+        for (Schedule schedule: schedules) {
+            ScheduleResponse response = new ScheduleResponse();
+            response.setSchedule(schedule);
+
+            Room room = schedule.getRoom();
+            int totalSeats = room.getHorizontalSeats() * room.getVerticalSeats();
+            response.setTotalSeats(totalSeats);
+            int booked = ticketRepository.countByScheduleId(schedule.getId());
+            response.setAvailables(totalSeats - booked);
+
+            responses.add(response);
+        }
+        return Result.success("Success", responses);
     }
 
-    private List<Schedule> findScheduleByTimeOption(boolean history) {
-        return null;
+    private List<Schedule> findScheduleByTimeOption(Cinema cinema, boolean history) {
+
+        LocalDateTime now = LocalDateTime.now();
+        List<Schedule> schedules;
+        if (history) {
+            schedules = scheduleRepository.findByRoom_CinemaAndAndEndTimeBefore(cinema, now);
+        } else {
+            schedules = scheduleRepository.findByRoom_CinemaAndEndTimeAfter(cinema, now);
+        }
+
+        return schedules;
     }
 
     @Override
@@ -109,8 +218,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     private LocalDateTime convertToLocalDateTimeFromString(String dateTimeString) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-        LocalDateTime dateTime = LocalDateTime.parse(dateTimeString, formatter);
-        return dateTime;
+        return LocalDateTime.parse(dateTimeString, formatter);
     }
 
     private String checkTime(LocalDateTime dateTime) {
@@ -122,5 +230,10 @@ public class ScheduleServiceImpl implements ScheduleService {
         if (dateTime.isBefore(now.plusHours(6)))
             return "Please schedule 6 hours before the film starts";
         return null;
+    }
+
+    private boolean isBooked(int scheduleId) {
+        int bookedNumber = ticketRepository.countByScheduleId(scheduleId);
+        return bookedNumber > 0;
     }
 }

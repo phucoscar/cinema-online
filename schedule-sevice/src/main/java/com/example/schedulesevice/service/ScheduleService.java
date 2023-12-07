@@ -6,6 +6,10 @@ import com.phucvukimcore.base.Result;
 public interface ScheduleService {
     Result scheduleShow(ScheduleDto dto);
 
+    Result editSchedule(ScheduleDto dto);
+
+    Result deleteSchedule(Integer scheduleId);
+
     Result findAllCurrentScheduleInCinema(Integer cinemaId);
 
     Result findAllHistoryScheduleInCinema(Integer cinemaId);

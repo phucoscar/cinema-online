@@ -16,21 +16,5 @@ public class AdminController {
 
     @Autowired
     private FilmService filmService;
-
-    @PostMapping(value = "/create-film")
-    public Result createFilm(@ModelAttribute FilmDto filmDto) {
-        Result result = filmService.createFilm(filmDto);
-        return result;
-    }
-
-    @PostMapping("/edit")
-    public Result editFilm(@ModelAttribute FilmDto filmDto) {
-        return filmService.editFilm(filmDto);
-    }
-
-
-    @PostMapping("/delete/{id}")
-    public Result deleteFilmById(@PathVariable Integer id) {
-        return filmService.deleteFilmById(id);
-    }
 }
+

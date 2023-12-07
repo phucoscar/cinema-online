@@ -123,7 +123,7 @@ public class UserServiceImpl implements UserService {
     public Result blockUser(Integer id) {
         Optional<User> op = userRepository.findById(id);
         if (!op.isPresent())
-            return Result.fail("User not found");
+            return Result.fail("Người dùng không tồn tại!");
         else {
             User user = op.get();
             user.setBlocked(true);
@@ -176,14 +176,14 @@ public class UserServiceImpl implements UserService {
         if (op.isPresent()) {
             User user = op.get();
             if (!passwordEncoder.matches(oldPassword, user.getPassword()))
-                return Result.fail("Old password is not correct!");
+                return Result.fail("Mật khẩu cũ không chính xác!");
             else {
                 user.setPassword(passwordEncoder.encode(newPassword));
                 userRepository.save(user);
                 return Result.success();
             }
         }
-        return Result.fail("User not found!");
+        return Result.fail("Người dùng không tồn tại!");
     }
 
 }

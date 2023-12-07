@@ -1,6 +1,8 @@
 package com.example.schedulesevice.controller;
 
 import com.example.schedulesevice.dto.request.ScheduleDto;
+import com.example.schedulesevice.entity.Schedule;
+import com.example.schedulesevice.repository.TicketRepository;
 import com.example.schedulesevice.service.ScheduleService;
 import com.phucvukimcore.base.Result;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +24,12 @@ public class ScheduleController {
 
     @PostMapping("/schedule-by-cinema") // lay schedule theo rap
     public Result getCurrentScheduleInCinema(@RequestParam Integer cinemaId) {
-        return Result.success();
+        return scheduleService.findAllCurrentScheduleInCinema(cinemaId);
+    }
+
+    @PostMapping("/schedule-history-by-cinema")
+    public Result getHistoryScheduleInCinema(@RequestParam Integer cinemaId) {
+        return scheduleService.findAllHistoryScheduleInCinema(cinemaId);
     }
 
     @PostMapping("/schedule-by-film") // lay tat ca schedule theo film
@@ -40,4 +47,16 @@ public class ScheduleController {
     public Result showScheduleDetails(@PathVariable Integer scheduleId) {
         return Result.success();
     }
+
+    @PostMapping("/edit")
+    public Result editSchedule(@RequestBody ScheduleDto scheduleDto) {
+        return scheduleService.editSchedule(scheduleDto);
+    }
+
+    @PostMapping("/delete")
+    public Result deleteSchedule(@RequestParam Integer scheduleId) {
+        return scheduleService.deleteSchedule(scheduleId);
+    }
+
+
 }
