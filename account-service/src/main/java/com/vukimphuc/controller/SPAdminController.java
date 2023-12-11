@@ -19,6 +19,11 @@ public class SPAdminController {
         return userService.blockUser(id);
     }
 
+    @PostMapping("/un-block")
+    public Result unBlockUser(@RequestParam(name = "id") Integer id) {
+        return userService.blockUser(id);
+    }
+
     @PostMapping("/create-admin-account")
     public Result createAccount(@RequestBody RegisterDto registerDto) {
         Result result = userService.register(registerDto, true);

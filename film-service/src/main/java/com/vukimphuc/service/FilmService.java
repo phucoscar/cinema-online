@@ -7,6 +7,8 @@ public interface FilmService {
 
     Result getAllFilms();
 
+    Result getAllFilmsOrderByCreatedDate();
+
     Result createFilm(FilmDto filmDto);
 
     Result editFilm(FilmDto filmDto);

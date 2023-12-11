@@ -8,5 +8,7 @@ public interface CinemaService {
 
     Result findCinemaById(Integer id);
 
+    Result findCinemaByAdmin(Integer id);
+
     Result findAll();
 }

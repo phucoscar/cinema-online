@@ -28,6 +28,11 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
+            response.setHeader("Access-Control-Allow-Origin", "*");
+            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            response.setHeader("Access-Control-Allow-Max-Age", "3600" );
+            response.setHeader("Access-Control-Allow-Headers", "Auth, content-type, xfrs-token");
+            response.addHeader("Access-Control-Expose-Headers", "xfrs-token");
             String jwt = parseJwt(request);
             boolean isValid = jwtUtils.validateJwtToken(jwt);
             if(isValid) {

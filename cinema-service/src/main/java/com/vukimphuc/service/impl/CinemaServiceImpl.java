@@ -50,6 +50,16 @@ public class CinemaServiceImpl implements CinemaService {
     }
 
     @Override
+    public Result findCinemaByAdmin(Integer id) {
+        Optional<Cinema> op = cinemaRepository.findByAdminId(id);
+        if (!op.isPresent()) {
+            return Result.fail("Người dùng hiện chưa quản lý rạp!");
+        }
+        Cinema cinema = op.get();
+        return Result.success("Success", cinema);
+    }
+
+    @Override
     public Result findAll() {
         return Result.success("Success", cinemaRepository.findAll());
     }

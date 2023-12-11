@@ -1,12 +1,6 @@
 package com.vukimphuc.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Component;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -17,8 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@Component
-public class CorrConfig extends OncePerRequestFilter implements WebMvcConfigurer {
+@Configuration
+public class CorsConfig extends OncePerRequestFilter implements WebMvcConfigurer {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -33,18 +27,6 @@ public class CorrConfig extends OncePerRequestFilter implements WebMvcConfigurer
             filterChain.doFilter(request, response);
         }
     }
-//    @Bean
-//    public CorsFilter corsFilter() {
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        CorsConfiguration config = new CorsConfiguration();
-//        config.setAllowCredentials(true);
-//        config.addAllowedOrigin("*"); // TODO: lock down before deploying
-//        config.addAllowedHeader("*");
-//        config.addExposedHeader(HttpHeaders.AUTHORIZATION);
-//        config.addAllowedMethod("*");
-//        source.registerCorsConfiguration("/**", config);
-//        return new CorsFilter(source);
-//    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {

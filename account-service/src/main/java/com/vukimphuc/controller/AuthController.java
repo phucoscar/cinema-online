@@ -71,6 +71,7 @@ public class AuthController {
 
     @GetMapping("/verify-token")
     public Result refreshRequest(@RequestHeader(value = "Auth") String token) {
+        System.out.println(token);
         return userService.verifyToken(token);
     }
 

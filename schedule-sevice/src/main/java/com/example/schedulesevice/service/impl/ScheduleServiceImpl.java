@@ -176,7 +176,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         LocalDateTime now = LocalDateTime.now();
         List<Schedule> schedules;
         if (history) {
-            schedules = scheduleRepository.findByRoom_CinemaAndAndEndTimeBefore(cinema, now);
+            schedules = scheduleRepository.findByRoom_CinemaAndEndTimeBefore(cinema, now);
         } else {
             schedules = scheduleRepository.findByRoom_CinemaAndEndTimeAfter(cinema, now);
         }
@@ -225,10 +225,10 @@ public class ScheduleServiceImpl implements ScheduleService {
         // so sanh voi thoi gian hien tai
         LocalDateTime now = LocalDateTime.now();
         if (dateTime.isBefore(now))
-            return "Invalid start time";
+            return "Thời gian bắt đầu chiếu không hợp lệ!";
         // neu thoi gian start truoc 6 tieng
         if (dateTime.isBefore(now.plusHours(6)))
-            return "Please schedule 6 hours before the film starts";
+            return "Vui lòng lên lịch trước 6 tiếng trước khi bắt đầu chiếu!";
         return null;
     }
 

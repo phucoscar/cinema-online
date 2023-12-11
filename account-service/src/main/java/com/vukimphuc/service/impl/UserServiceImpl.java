@@ -133,6 +133,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Result unBlockUser(Integer id) {
+        Optional<User> op = userRepository.findById(id);
+        if (!op.isPresent())
+            return Result.fail("Người dùng không tồn tại!");
+        else {
+            User user = op.get();
+            user.setBlocked(false);
+            userRepository.save(user);
+            return new Result(200, "Success", user);
+        }
+    }
+
+    @Override
     public Result findAllCustomerAccount() {
         List<User> users = userRepository.findAllByRoleId(RoleEnums.CUSTOMER.getCode());
         return Result.success("Success", users);
@@ -153,6 +166,17 @@ public class UserServiceImpl implements UserService {
         }
 
         return Result.success("Success", responses);
+    }
+
+    @Override
+    public Result findAllAdminAccountWithoutCinema() {
+        List<User> users = userRepository.findAllByRoleId(RoleEnums.ADMIN.getCode());
+        List<User> response = new ArrayList<>();
+        for (User user: users) {
+            if (user.getManagedCinema() == null)
+                response.add(user);
+        }
+        return Result.success("Success", response);
     }
 
     public boolean validateUsername(String username) {

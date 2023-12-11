@@ -33,4 +33,9 @@ public class UserController {
     public Result findAllAdminAccount() {
         return userService.findAllAdminAccount();
     }
+
+    @GetMapping("/available-admins")
+    public Result findAllAdminAccountWithoutCinema() {
+        return userService.findAllAdminAccountWithoutCinema();
+    }
 }

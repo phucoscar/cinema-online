@@ -19,7 +19,11 @@ public interface UserService {
 
     Result blockUser(Integer id);
 
+    Result unBlockUser(Integer id);
+
     Result findAllCustomerAccount();
 
     Result findAllAdminAccount();
+
+    Result findAllAdminAccountWithoutCinema();
 }

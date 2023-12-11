@@ -21,6 +21,11 @@ public class CinemaController {
         return cinemaService.createCinema(cinemaDto);
     }
 
+    @PostMapping("/by-admin")
+    public Result findCinemaByAdmin(@RequestParam Integer adminId) {
+        return cinemaService.findCinemaByAdmin(adminId);
+    }
+
     @PostMapping("/{id}")
     public Result findCinema(@PathVariable Integer id) {
         return cinemaService.findCinemaById(id);

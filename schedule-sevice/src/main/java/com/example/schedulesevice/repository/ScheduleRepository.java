@@ -15,7 +15,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
     @Query(value = "SELECT * FROM Schedule WHERE DATE (start_time) = DATE (?1) AND room_id = ?2", nativeQuery = true)
     List<Schedule> findByTimeStartAndRoomId(LocalDateTime timeStart, Integer roomId);
 
-    List<Schedule> findByRoom_CinemaAndAndEndTimeBefore(Cinema cinema, LocalDateTime time);
+    List<Schedule> findByRoom_CinemaAndEndTimeBefore(Cinema cinema, LocalDateTime time);
 
     List<Schedule> findByRoom_CinemaAndEndTimeAfter(Cinema cinema, LocalDateTime time);
 }
