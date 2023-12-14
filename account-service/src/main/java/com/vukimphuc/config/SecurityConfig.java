@@ -56,7 +56,8 @@ public class SecurityConfig {
         http.cors().and().csrf(csrf -> csrf.disable())
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests()
-                .antMatchers("/api/v1/auth/signin","/api/v1/auth/verify-token", "/api/v1/auth/signup").permitAll()
+                .antMatchers("/api/v1/auth/signin","/api/v1/auth/verify-token",
+                        "/api/v1/auth/signup", "/SSO/sign-in-google").permitAll()
                 .antMatchers("/api/v1/sp-admin/**").hasAuthority("SUPER_ADMIN")
                 .anyRequest().authenticated();
         http.authenticationProvider(authenticationProvider());

@@ -9,7 +9,11 @@ public interface UserService {
 
     User findByUsername(String username);
 
+    User findByEmail(String email);
+
     LoginResponse convertToLoginResp(User user, String token);
+
+    Result loginByGoogle(RegisterDto dto);
 
     Result register(RegisterDto dto, boolean isAdmin);
 

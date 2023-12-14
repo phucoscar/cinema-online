@@ -51,6 +51,11 @@ public class FilmServiceImpl implements FilmService {
         return Result.success("Success", films);
     }
 
+    @Override
+    public Result getAllFilmsOrderByCreatedDate() {
+        return null;
+    }
+
     @Transactional
     @Override
     public Result createFilm(FilmDto filmDto) {

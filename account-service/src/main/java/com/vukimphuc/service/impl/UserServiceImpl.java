@@ -14,6 +14,7 @@ import com.vukimphuc.repository.RoleRepository;
 import com.vukimphuc.repository.UserRepository;
 import com.vukimphuc.service.UserService;
 import com.vukimphuc.util.JwtUtils;
+import com.vukimphuc.util.UsernameGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -57,16 +58,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findByEmail(String email) {
+        Optional<User> op = userRepository.findByUsername(email);
+        if (op.isPresent()) {
+            return op.get();
+        }
+        return null;
+    }
+
+    @Override
     public LoginResponse convertToLoginResp(User user, String token) {
         LoginResponse response = new LoginResponse();
         response.setId(user.getId());
         response.setUsername(user.getUsername());
-        response.setPassword(user.getPassword());
-        response.setFullname(user.getFullname());
-        response.setDateOfBirth(user.getDateOfBirth());
-        response.setAddress(user.getAddress());
+        response.setPassword(user.getPassword() != null? user.getPassword() : null);
+        response.setFullname(user.getFullname() != null? user.getFullname() : null);
+        response.setDateOfBirth(user.getDateOfBirth() != null? user.getDateOfBirth() : null);
+        response.setAddress(user.getAddress() != null? user.getAddress() : null);
         response.setEmail(user.getEmail());
-        response.setPhone(user.getPhone());
+        response.setPhone(user.getPhone() != null? user.getPhone() : null);
         response.setBlocked(user.isBlocked());
         response.setRole(user.getRole());
         response.setToken(token);
@@ -76,10 +86,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Result register(RegisterDto dto, boolean isAdmin) {
-        boolean isValid = validateUsername(dto.getUsername());
-        if (!isValid)
-            return Result.fail("Tên đăng nhập đã đã được sử dụng");
-        isValid = validateEmail(dto.getEmail());
+        String error = errorUsername(dto.getUsername());
+        if (error != null)
+            return Result.fail(error);
+        boolean isValid = validateEmail(dto.getEmail());
         if (!isValid)
             return Result.fail("Email đã được sử dụng");
         User user = mapper.convertValue(dto, User.class);
@@ -89,6 +99,23 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         //emailSenderService.sendMailRegister(dto.getEmail(), dto.getUsername(), dto.getPassword());
         return new Result(200, "Success", user);
+    }
+
+    @Override
+    public Result loginByGoogle(RegisterDto dto) {
+        String username = UsernameGenerator.generateUsernameFromEmail(dto.getEmail());
+        while (userRepository.existsByUsername(username)) {
+            username = UsernameGenerator.generateUsernameFromEmail(dto.getEmail());
+        }
+        User user = mapper.convertValue(dto, User.class);
+        user.setUsername(username);
+        Role role = roleRepository.findById(RoleEnums.CUSTOMER.getCode()).get();
+        user.setRole(role);
+        user = userRepository.save(user);
+        String token = jwtUtils.generateTokenFromUsername(username);
+        LoginResponse response = convertToLoginResp(user, token);
+        //emailSenderService.sendMailRegister(dto.getEmail(), dto.getUsername(), dto.getPassword());
+        return new Result(200, "Success", response);
     }
 
     @Override
@@ -106,12 +133,12 @@ public class UserServiceImpl implements UserService {
         LoginResponse response = new LoginResponse();
         response.setId(user.getId());
         response.setUsername(user.getUsername());
-        response.setPassword(user.getPassword());
-        response.setFullname(user.getFullname());
-        response.setDateOfBirth(user.getDateOfBirth());
-        response.setAddress(user.getAddress());
+        response.setPassword(user.getPassword() != null? user.getPassword() : null);
+        response.setFullname(user.getFullname() != null? user.getFullname() : null);
+        response.setDateOfBirth(user.getDateOfBirth() != null? user.getDateOfBirth() : null);
+        response.setAddress(user.getAddress() != null? user.getAddress() : null);
         response.setEmail(user.getEmail());
-        response.setPhone(user.getPhone());
+        response.setPhone(user.getPhone() != null? user.getPhone() : null);
         response.setBlocked(user.isBlocked());
         response.setRole(user.getRole());
         response.setToken(token);
@@ -179,11 +206,25 @@ public class UserServiceImpl implements UserService {
         return Result.success("Success", response);
     }
 
-    public boolean validateUsername(String username) {
+    public String errorUsername(String username) {
+        if (isContainsSpecialCharacter(username)) {
+            return "Tên đăng nhập không được chứa ký tự đặc biệt";
+        }
+
+        if (!Character.isLetter(username.charAt(0))) {
+            return "Tên đăng nhập không được bắt đầu bằng chữ số";
+        }
+
         Optional<User> op = userRepository.findByUsername(username);
         if (op.isPresent())
-            return false;
-        return true;
+            return "Tên đăng nhập đã được sử dụng";
+
+        return null;
+    }
+
+    private boolean isContainsSpecialCharacter(String data) {
+        String pattern = ".*[^a-zA-Z0-9].*";
+        return data.matches(pattern);
     }
 
     public boolean validateEmail(String email) {
