@@ -23,6 +23,7 @@ public class CinemaController {
 
     @PostMapping("/by-admin")
     public Result findCinemaByAdmin(@RequestParam Integer adminId) {
+        System.out.println(adminId);
         return cinemaService.findCinemaByAdmin(adminId);
     }
 

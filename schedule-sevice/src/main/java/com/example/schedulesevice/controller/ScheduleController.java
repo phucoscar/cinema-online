@@ -58,5 +58,18 @@ public class ScheduleController {
         return scheduleService.deleteSchedule(scheduleId);
     }
 
+    @GetMapping("/view-all-orders")
+    public Result viewAllOrdered(@RequestParam Integer scheduleId) {
+        return scheduleService.findAllOrdered(scheduleId);
+    }
 
+    @GetMapping("/get-by-id")
+    public Result findScheduleById(@RequestParam Integer scheduleId) {
+        return scheduleService.getScheduleById(scheduleId);
+    }
+
+    @GetMapping("/get-seats-status")
+    public Result getAllSeatsBookedInSchedule(@RequestParam Integer scheduleId) {
+        return scheduleService.getAllBookedSeats(scheduleId);
+    }
 }

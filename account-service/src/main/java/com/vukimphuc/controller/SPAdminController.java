@@ -14,14 +14,14 @@ public class SPAdminController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/block")
-    public Result blockUser(@RequestParam(name = "id") Integer id) {
-        return userService.blockUser(id);
+    @PostMapping("/change-status")
+    public Result changeUserStatus(@RequestParam(name = "id") Integer id) {
+        return userService.changeUserStatus(id);
     }
 
     @PostMapping("/un-block")
     public Result unBlockUser(@RequestParam(name = "id") Integer id) {
-        return userService.blockUser(id);
+        return userService.unBlockUser(id);
     }
 
     @PostMapping("/create-admin-account")

@@ -75,11 +75,11 @@ public class AuthController {
         return userService.verifyToken(token);
     }
 
-    @PostMapping("/change-password")
-    public Result signup(@RequestHeader(value = "Auth") String token,
+    @GetMapping("/change-password")
+    public Result signup(@RequestParam Integer userId,
                          @RequestParam String oldPassword,
                          @RequestParam String newPassword) {
-        Result result = userService.changePassword(token, oldPassword, newPassword);
+        Result result = userService.changePassword(userId, oldPassword, newPassword);
         return result ;
     }
 }

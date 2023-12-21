@@ -1,6 +1,7 @@
 package com.vukimphuc.controller;
 
 import com.phucvukimcore.base.Result;
+import com.vukimphuc.dto.request.EditFilmDto;
 import com.vukimphuc.dto.request.FilmDto;
 import com.vukimphuc.service.FilmService;
 import com.vukimphuc.service.UserService;
@@ -39,7 +40,7 @@ public class FilmController {
     }
 
     @PostMapping("/edit")
-    public Result editFilm(@ModelAttribute FilmDto filmDto) {
+    public Result editFilm(@ModelAttribute EditFilmDto filmDto) {
         return filmService.editFilm(filmDto);
     }
 

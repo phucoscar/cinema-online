@@ -42,8 +42,8 @@ public class TikcetServiceImpl implements TicketService {
            }
            ticket.setSchedule(op.get());
            ticket.setBooking(booking);
-           ticket.setSeatNumberHorizontal(seat.getRow());
-           ticket.setSeatNumberVertical(seat.getColumn());
+           ticket.setSeatNumberHorizontal(seat.getColumn());
+           ticket.setSeatNumberVertical(seat.getRow());
            ticket = ticketRepository.save(ticket);
            tickets.add(ticket);
        }

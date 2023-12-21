@@ -3,6 +3,7 @@ package com.vukimphuc.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucvukimcore.base.Result;
 import com.phucvukimcore.enums.RoleEnums;
+import com.vukimphuc.dto.request.ProfileDto;
 import com.vukimphuc.dto.request.RegisterDto;
 import com.vukimphuc.dto.response.AdminAccountResponse;
 import com.vukimphuc.entity.Cinema;
@@ -64,6 +65,26 @@ public class UserServiceImpl implements UserService {
             return op.get();
         }
         return null;
+    }
+
+    @Override
+    public Result editProfile(ProfileDto dto) {
+        Optional<User> op = userRepository.findById(dto.getId());
+        if (!op.isPresent()) {
+            return Result.fail("Không tồn tại người dùng");
+        }
+
+//        String error = errorUsername(dto.getUsername());
+//        if (error != null)
+//            return Result.fail(error);
+
+        User user = op.get();
+        user.setUsername(dto.getUsername());
+        user.setFullname(dto.getFullname());
+        user.setAddress(dto.getAddress());
+        user.setDateOfBirth(dto.getDateOfBirth());
+        user.setPhone(dto.getPhone());
+        return Result.success("Success", userRepository.save(user));
     }
 
     @Override
@@ -147,13 +168,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Result blockUser(Integer id) {
+    public Result changeUserStatus(Integer id) {
         Optional<User> op = userRepository.findById(id);
         if (!op.isPresent())
             return Result.fail("Người dùng không tồn tại!");
         else {
             User user = op.get();
-            user.setBlocked(true);
+            boolean status = user.isBlocked();
+            user.setBlocked(!status);
             userRepository.save(user);
             return new Result(200, "Success", user);
         }
@@ -235,9 +257,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Result changePassword(String token, String oldPassword, String newPassword) {
-        String username = jwtUtils.getUsernameFromJwtToken(token);
-        Optional<User> op = userRepository.findByUsername(username);
+    public Result changePassword(Integer userId, String oldPassword, String newPassword) {
+        Optional<User> op = userRepository.findById(userId);
         if (op.isPresent()) {
             User user = op.get();
             if (!passwordEncoder.matches(oldPassword, user.getPassword()))

@@ -16,6 +16,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +51,7 @@ public class RatingServiceImpl implements RatingService {
         Rating rating = new Rating();
         rating.setStar(dto.getStar());
         rating.setComment(dto.getComment());
+        rating.setCreatedAt(LocalDateTime.now());
         rating.setFilm(film.get());
         rating.setUser(user.get());
         ratingRepository.save(rating);

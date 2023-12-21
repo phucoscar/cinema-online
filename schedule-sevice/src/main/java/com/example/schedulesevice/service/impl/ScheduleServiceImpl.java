@@ -1,8 +1,7 @@
 package com.example.schedulesevice.service.impl;
 
 import com.example.schedulesevice.dto.request.ScheduleDto;
-import com.example.schedulesevice.dto.response.ScheduleResponse;
-import com.example.schedulesevice.dto.response.ShowResponse;
+import com.example.schedulesevice.dto.response.*;
 import com.example.schedulesevice.entity.*;
 import com.example.schedulesevice.repository.*;
 import com.example.schedulesevice.service.ScheduleService;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
@@ -62,6 +62,15 @@ public class ScheduleServiceImpl implements ScheduleService {
         room.setSchedules(schedules);
         roomRepository.save(room);
         return Result.success("Success", schedule);
+    }
+
+    @Override
+    public Result getScheduleById(Integer scheduleId) {
+        Optional<Schedule> op = scheduleRepository.findById(scheduleId);
+        if (!op.isPresent())
+            return Result.fail("Lịch chiếu không tồn tại");
+        else
+            return Result.success("Success", op.get());
     }
 
     @Override
@@ -187,12 +196,16 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public Result findAllScheduleInCinemaByDay(Integer cinemaId, String date) {
         List<Room> rooms = roomRepository.findByCinemaId(cinemaId);
-        LocalDateTime dateStart = convertToLocalDateTimeFromString(date);
+        LocalDateTime dateStart = convertToLocalDateTimeFromString(date + "T00:00:00");
+        if (dateStart.isBefore(LocalDateTime.now())) {
+            dateStart = LocalDateTime.now();
+        }
+        LocalDateTime endDate = convertToLocalDateTimeFromString(date + "T23:59:59");
         Map<Integer, Integer> map = new HashMap<>();
         List<ShowResponse> result = new ArrayList<>();
         int index = 0;
         for (Room room: rooms) {
-            List<Schedule> schedules = scheduleRepository.findByTimeStartAndRoomId(dateStart, room.getId());
+            List<Schedule> schedules = scheduleRepository.findByDateRangeAndRoomId(dateStart, endDate, room.getId());
             for (Schedule schedule: schedules) {
                 Film film = schedule.getFilm();
                 if (map.containsKey(film.getId())) {
@@ -206,7 +219,9 @@ public class ScheduleServiceImpl implements ScheduleService {
                 else {
                     ShowResponse response = new ShowResponse();
                     response.setFilm(film);
-                    response.setSchedules(Arrays.asList(schedule));
+                    List<Schedule> list = new ArrayList<>();
+                    list.add(schedule);
+                    response.setSchedules(list);
                     result.add(response);
                     map.put(film.getId(), index);
                     index++;
@@ -214,6 +229,108 @@ public class ScheduleServiceImpl implements ScheduleService {
             }
         }
         return Result.success("Success", result);
+    }
+
+    @Override
+    public Result findAllOrdered(Integer scheduleId) {
+
+        List<Ticket> tickets = ticketRepository.findByScheduleId(scheduleId);
+        List<Booking> bookings = new ArrayList<>(tickets.stream().map(Ticket::getBooking).collect(Collectors.toSet()));
+
+        List<OrderedResponse> responses = new ArrayList<>();
+        Map<Integer, Integer> mark = new HashMap<>();
+        int index = 0;
+        for (Ticket ticket: tickets) {
+            for (Booking booking: bookings) {
+                if (ticket.getBooking().getId().equals(booking.getId())) {
+                    if (mark.containsKey(booking.getId())) {
+                        int currentIndex = mark.get(booking.getId());
+                        OrderedResponse order = responses.get(currentIndex);
+                        order.setNumberOfTicket(order.getNumberOfTicket() + 1);
+                        if (ticket.getTicketClass().equals(0)) {
+                            order.setRegulars(order.getRegulars() + 1);
+                        } else {
+                            order.setVips(order.getVips() + 1);
+                        }
+                        order.setSeats(order.getSeats() + ", " + ticket.getSeatNumberVertical() + "-" + ticket.getSeatNumberHorizontal());
+                        order.setTotalPaid((order.getTotalPaid() + ticket.getPrice()));
+                        responses.set(currentIndex, order);
+                    } else {
+                        OrderedResponse order = new OrderedResponse();
+                        User user = booking.getUser();
+                        order.setFullname(user.getFullname());
+                        order.setEmail(user.getEmail());
+                        order.setBookedTime(booking.getBookingTime());
+                        order.setNumberOfTicket(1);
+                        if (ticket.getTicketClass().equals(0)) {
+                            order.setRegulars(1);
+                            order.setVips(0);
+                        } else {
+                            order.setRegulars(0);
+                            order.setVips(1);
+                        }
+                        order.setSeats(ticket.getSeatNumberVertical() + "-" + ticket.getSeatNumberHorizontal());
+                        order.setTotalPaid(ticket.getPrice());
+                        responses.add(order);
+                        mark.put(booking.getId(), index++);
+                    }
+                }
+            }
+        }
+        return Result.success("Success", responses);
+    }
+
+    @Override
+    public Result getRevenueStatistic(Integer cinemaId, String startDate, String endDate) {
+        Optional<Cinema> op = cinemaRepository.findById(cinemaId);
+        if (!op.isPresent()) {
+            return Result.fail("Rạp chiếu không tồn tại");
+        }
+        Cinema cinema = op.get();
+        LocalDateTime start = convertToLocalDateTimeFromString(startDate + "T00:00:00");
+        LocalDateTime end = convertToLocalDateTimeFromString(endDate + "T00:00:00");
+        List<Schedule> schedules = scheduleRepository.findAllByRoom_CinemaAndStartTimeAfterAndStartTimeBefore(cinema, start, end);
+        long totalRevenue = 0L;
+        List<ScheduleRevenueStatistic> revenueSchedules = new ArrayList<>();
+        for (Schedule schedule: schedules) {
+            ScheduleRevenueStatistic revenueSchedule = new ScheduleRevenueStatistic();
+            revenueSchedule.setFilm(schedule.getFilm());
+            revenueSchedule.setRoom(schedule.getRoom());
+            revenueSchedule.setShowDate(schedule.getStartTime());
+
+            List<Ticket> tickets = ticketRepository.findByScheduleId(schedule.getId());
+            revenueSchedule.setTicketsSold(tickets.size());
+            long revenue = tickets.stream()
+                            .mapToLong(Ticket::getPrice).sum();
+            revenueSchedule.setRevenue(revenue);
+            revenueSchedules.add(revenueSchedule);
+            totalRevenue += revenue;
+        }
+        RevenueStatisticResponse response = new RevenueStatisticResponse();
+        response.setTotalRevenue(totalRevenue);
+        response.setScheduleRevenueStatistic(revenueSchedules);
+        return Result.success("Success", response);
+    }
+
+    @Override
+    public Result getAllBookedSeats(Integer scheduleId) {
+        Optional<Schedule> op = scheduleRepository.findById(scheduleId);
+        if (!op.isPresent()) {
+            return Result.fail("Lịch chiếu không tồn tại");
+        }
+        Schedule schedule = op.get();
+        Room room = schedule.getRoom();
+        SeatsStatus seatsStatus = new SeatsStatus();
+        seatsStatus.setSchedule(schedule);
+        seatsStatus.setRow(room.getVerticalSeats());
+        seatsStatus.setColumn(room.getHorizontalSeats());
+        List<Ticket> tickets = ticketRepository.findByScheduleId(scheduleId);
+        List<String> responses = new ArrayList<>();
+        for (Ticket ticket: tickets) {
+            responses.add(ticket.getSeatNumberVertical() + "-" + ticket.getSeatNumberHorizontal());
+        }
+        seatsStatus.setBookedSeats(responses);
+        return Result.success("Success", seatsStatus);
     }
 
     private LocalDateTime convertToLocalDateTimeFromString(String dateTimeString) {
@@ -228,7 +345,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             return "Thời gian bắt đầu chiếu không hợp lệ!";
         // neu thoi gian start truoc 6 tieng
         if (dateTime.isBefore(now.plusHours(6)))
-            return "Vui lòng lên lịch trước 6 tiếng trước khi bắt đầu chiếu!";
+            return "Vui lòng lên lịch 6 tiếng trước khi bắt đầu chiếu!";
         return null;
     }
 

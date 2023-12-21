@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "rating")
@@ -21,6 +22,9 @@ public class Rating {
 
     @Column(name = "comment")
     private String comment;
+
+    @Column(name = "createdAt")
+    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "film_id", nullable = false)

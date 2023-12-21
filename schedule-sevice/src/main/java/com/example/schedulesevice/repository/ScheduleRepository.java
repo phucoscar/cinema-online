@@ -12,10 +12,13 @@ import java.util.List;
 @Repository
 public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
 
-    @Query(value = "SELECT * FROM Schedule WHERE DATE (start_time) = DATE (?1) AND room_id = ?2", nativeQuery = true)
-    List<Schedule> findByTimeStartAndRoomId(LocalDateTime timeStart, Integer roomId);
+    @Query(value = "SELECT * FROM Schedule WHERE start_time >= ?1 AND start_time < ?2 AND room_id = ?3", nativeQuery = true)
+    List<Schedule> findByDateRangeAndRoomId(LocalDateTime startDate, LocalDateTime endDate, Integer roomId);
+
 
     List<Schedule> findByRoom_CinemaAndEndTimeBefore(Cinema cinema, LocalDateTime time);
 
     List<Schedule> findByRoom_CinemaAndEndTimeAfter(Cinema cinema, LocalDateTime time);
+
+    List<Schedule> findAllByRoom_CinemaAndStartTimeAfterAndStartTimeBefore(Cinema cinema, LocalDateTime start, LocalDateTime end);
 }

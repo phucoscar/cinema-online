@@ -3,8 +3,11 @@ package com.vukimphuc.paymentservice.controller;
 import com.phucvukimcore.base.Result;
 import com.vukimphuc.paymentservice.dto.request.OrderRequestDTO;
 import com.vukimphuc.paymentservice.dto.request.TransactionDTO;
+import com.vukimphuc.paymentservice.entity.User;
+import com.vukimphuc.paymentservice.repository.UserRepository;
 import com.vukimphuc.paymentservice.service.BookingService;
 import com.vukimphuc.paymentservice.service.VNPayService;
+import com.vukimphuc.paymentservice.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,9 +25,21 @@ public class PaymentController {
     @Autowired
     private BookingService bookingService;
 
-    @GetMapping("/create-payment")
-    public Result createPayment(HttpServletRequest request, @RequestBody OrderRequestDTO orderRequestDTO) throws UnsupportedEncodingException {
+    @Autowired
+    private JwtUtils jwtUtils;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @GetMapping("/create-payment")
+    public Result createPayment(HttpServletRequest request,
+                                @RequestHeader(value = "Auth") String token,
+                                @RequestParam Long amount) throws UnsupportedEncodingException {
+        String username = jwtUtils.getUsernameFromJwtToken(token);
+        Optional<User> op = userRepository.findByUsername(username);
+        OrderRequestDTO orderRequestDTO = new OrderRequestDTO();
+        orderRequestDTO.setAmount(amount);
+        orderRequestDTO.setOrderInfor("Thanh toan ve xem phim cua: " + op.get().getEmail());
         Map<String, Object> result = this.vnPayService.createOrder(request, orderRequestDTO);
 
         return Result.success("Success", result);

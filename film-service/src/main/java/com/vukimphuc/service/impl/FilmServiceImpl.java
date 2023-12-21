@@ -3,6 +3,7 @@ package com.vukimphuc.service.impl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucvukimcore.base.Result;
 import com.vukimphuc.cloudinary.CloudinaryService;
+import com.vukimphuc.dto.request.EditFilmDto;
 import com.vukimphuc.dto.request.FilmDto;
 import com.vukimphuc.entity.Film;
 import com.vukimphuc.entity.Rating;
@@ -77,9 +78,66 @@ public class FilmServiceImpl implements FilmService {
             }
             film.setThumnails(thumnails);
         } catch (ParseException ex) {
-            return Result.fail("Release date is invalid");
+            return Result.fail("Ngày phát hành không đúng định dạng");
         } catch (IOException ex) {
-            return Result.fail("Error while uploading thumbnails");
+            return Result.fail("Xảy ra lỗi trong quá trình upload ảnh");
+        }
+        film.setDuration(filmDto.getDuration());
+        List<Type> types = getListFilmTypes(filmDto.getTypeIds());
+        film.setTypes(types);
+        filmRepository.save(film);
+        thumbnailsRepository.saveAll(thumnails);
+        return Result.success("Success", film);
+    }
+
+
+    //TODO: sửa phim
+    @Override
+    public Result editFilm(EditFilmDto filmDto) {
+        Integer id = filmDto.getId();
+        Optional<Film> op = filmRepository.findById(id);
+        if (!op.isPresent())
+            return Result.fail("Không tồn tại phim");
+        Film film = op.get();
+        List<Thumnail> thumnails = film.getThumnails();
+        if (filmDto.getDeleteThumbnails() != null) {
+
+            for (Thumnail thumnail: thumnails) {
+                for (Integer idThum: filmDto.getDeleteThumbnails()) {
+                    if (thumnail.getId().equals(idThum)) {
+                        thumnails.remove(thumnail);
+                        Thumnail delThumnail = thumbnailsRepository.findById(idThum).get();
+                        try {
+                            cloudinaryService.deleteFile(delThumnail.getPublicId());
+                        } catch (IOException ex) {
+                        }
+                        thumbnailsRepository.deleteById(idThum);
+                    }
+                }
+            }
+
+        }
+        film.setName(filmDto.getName());
+        film.setDescription(filmDto.getDescription());
+        try {
+            Date releaseDate = convertToDate(filmDto.getReleaseDate());
+            film.setReleaseDate(releaseDate);
+
+            if (filmDto.getThumnails() != null) {
+                for (MultipartFile file: filmDto.getThumnails()) {
+                    Map<String, String> map = cloudinaryService.uploadFile(file);
+                    Thumnail thumnail = new Thumnail();
+                    thumnail.setUrl(map.get("url"));
+                    thumnail.setPublicId(map.get("publicId"));
+                    thumnail.setFilm(film);
+                    thumnails.add(thumnail);
+                }
+            }
+            film.setThumnails(thumnails);
+        } catch (ParseException ex) {
+            return Result.fail("Ngày khởi chiếu không đúng định dạng");
+        } catch (IOException ex) {
+            return Result.fail("Xảy ra lỗi trong quá trình upload ảnh");
         }
         film.setDuration(filmDto.getDuration());
         List<Type> types = getListFilmTypes(filmDto.getTypeIds());
@@ -90,32 +148,10 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public Result editFilm(FilmDto filmDto) {
-        Integer id = filmDto.getId();
-        Optional<Film> op = filmRepository.findById(id);
-        if (!op.isPresent())
-            return Result.fail("Film not found");
-        Film film = op.get();
-        film.setName(filmDto.getName());
-        film.setDescription(filmDto.getDescription());
-        try {
-            Date releaseDate = convertToDate(filmDto.getReleaseDate());
-            film.setReleaseDate(releaseDate);
-        } catch (ParseException ex) {
-            return Result.fail("Release date is invalid");
-        }
-        film.setDuration(filmDto.getDuration());
-        List<Type> types = getListFilmTypes(filmDto.getTypeIds());
-        film.setTypes(types);
-        filmRepository.save(film);
-        return Result.success("Success", film);
-    }
-
-    @Override
     public Result getFilmById(Integer id) {
         Optional<Film> op = filmRepository.findById(id);
         if (!op.isPresent())
-            return Result.fail("Film not found");
+            return Result.fail("Không tìm thấy phim");
         Film film = op.get();
         return Result.success("Success", film);
     }
@@ -125,14 +161,14 @@ public class FilmServiceImpl implements FilmService {
     public Result deleteFilmById(Integer id) {
         Optional<Film> op = filmRepository.findById(id);
         if (!op.isPresent())
-            return Result.fail("Film not found");
+            return Result.fail("Không tìm thấy phim");
         Film film = op.get();
         List<Thumnail> thumnails = film.getThumnails();
         for(Thumnail thumnail: thumnails) {
             try {
                 cloudinaryService.deleteFile(thumnail.getPublicId());
             } catch (IOException e){
-                return Result.fail("Error while detele thumnail");
+                return Result.fail("Xảy ra lỗi trong quá trình xóa ảnh");
             }
         }
         filmRepository.delete(film);

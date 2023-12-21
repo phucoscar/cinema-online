@@ -2,7 +2,7 @@ package com.vukimphuc.paymentservice.constants;
 
 public class VNPayConstant {
     public static final String VNP_PAY_URL = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-    public static final String VNP_RETURN_URL = "http://localhost:8080/payment-service/api/v1/payment/result-info";
+    public static final String VNP_RETURN_URL = "http://localhost:3000/";
     public static final String VNP_TMN_CODE = "AUTDGFEM";
     public static final String SECRET_KEY = "CJQQPPQDECQANOZQCGXWTLYPLVGDXDKH";
     public static final String VNP_API_URL = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
