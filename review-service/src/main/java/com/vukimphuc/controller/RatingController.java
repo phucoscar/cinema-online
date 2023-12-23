@@ -2,6 +2,7 @@ package com.vukimphuc.controller;
 
 import com.phucvukimcore.base.Result;
 import com.vukimphuc.dto.request.RatingDTO;
+import com.vukimphuc.dto.response.RatingDtoResponse;
 import com.vukimphuc.service.RatingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,5 +23,10 @@ public class RatingController {
     @GetMapping("/film-ratings")
     public Result getRatingsInAFilm(@RequestParam Integer filmId) {
         return ratingService.getFilmRatings(filmId);
+    }
+
+    @GetMapping("/check-rating")
+    public RatingDtoResponse checkUserRatingInAFilm(@RequestParam Integer userId, @RequestParam Integer filmId) {
+        return ratingService.getRatingInAFilmByUser(filmId, userId);
     }
 }

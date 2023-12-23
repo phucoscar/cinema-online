@@ -288,7 +288,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         }
         Cinema cinema = op.get();
         LocalDateTime start = convertToLocalDateTimeFromString(startDate + "T00:00:00");
-        LocalDateTime end = convertToLocalDateTimeFromString(endDate + "T00:00:00");
+        LocalDateTime end = convertToLocalDateTimeFromString(endDate + "T23:59:59");
         List<Schedule> schedules = scheduleRepository.findAllByRoom_CinemaAndStartTimeAfterAndStartTimeBefore(cinema, start, end);
         long totalRevenue = 0L;
         List<ScheduleRevenueStatistic> revenueSchedules = new ArrayList<>();

@@ -43,15 +43,18 @@ public class BookingServiceImpl implements BookingService {
         Optional<User> op = userRepository.findById(dto.getUserId());
         if (!op.isPresent())
             return Result.fail("Không tìm thấy người dùng");
-        List<User> users = booking.getUser();
-        if (users == null || users.isEmpty())
-            users = new ArrayList<>();
-        users.add(op.get());
-        booking.setUser(users);
+        booking.setUser(op.get());
         booking.setBookingTime(LocalDateTime.now());
         booking = bookingRepository.save(booking);
-
-        List<Ticket> tickets = ticketService.createTicket(booking, dto.getScheduleId(), dto.getSeats());
+        List<Seat> seats = new ArrayList<>();
+        for (String s: dto.getSeats()) {
+            String[] integers = s.split("-");
+            Seat seat = new Seat();
+            seat.setRow(Integer.parseInt(integers[0]));
+            seat.setColumn(Integer.parseInt(integers[1]));
+            seats.add(seat);
+        }
+        List<Ticket> tickets = ticketService.createTicket(booking, dto.getScheduleId(), seats);
         booking.setTickets(tickets);
         return Result.success("Success", bookingRepository.save(booking));
     }

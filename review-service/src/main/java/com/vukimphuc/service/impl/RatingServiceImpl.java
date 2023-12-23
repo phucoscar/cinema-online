@@ -2,6 +2,7 @@ package com.vukimphuc.service.impl;
 
 import com.phucvukimcore.base.Result;
 import com.vukimphuc.dto.request.RatingDTO;
+import com.vukimphuc.dto.response.RatingDtoResponse;
 import com.vukimphuc.entity.Film;
 import com.vukimphuc.entity.Rating;
 import com.vukimphuc.entity.User;
@@ -70,5 +71,11 @@ public class RatingServiceImpl implements RatingService {
     public Result getFilmRatings(Integer filmId) {
         List<Rating> ratings = ratingRepository.findAllByFilmId(filmId);
         return Result.success("Success", ratings);
+    }
+
+    @Override
+    public RatingDtoResponse getRatingInAFilmByUser(Integer filmId, Integer userId) {
+        Optional<Rating> op = ratingRepository.findByFilmIdAndUserId(filmId, userId);
+        return op.map(rating -> new RatingDtoResponse(rating.getStar(), rating.getComment())).orElse(null);
     }
 }

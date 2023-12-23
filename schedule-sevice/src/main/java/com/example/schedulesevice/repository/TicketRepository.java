@@ -16,4 +16,5 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
     @Query(value = "SELECT t.booking FROM Ticket t WHERE t.schedule.id = ?1 GROUP BY t.booking", nativeQuery = true)
     List<Booking> findBookingsByScheduleId(Integer scheduleId);
+
 }

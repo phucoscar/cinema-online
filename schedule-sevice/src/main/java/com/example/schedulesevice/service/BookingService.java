@@ -5,4 +5,6 @@ import com.phucvukimcore.base.Result;
 
 public interface BookingService {
     Result checkAvailableSeats(BookingDto dto);
+
+    Result getListHistoryBooking(String token);
 }

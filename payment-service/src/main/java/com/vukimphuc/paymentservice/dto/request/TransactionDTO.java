@@ -11,6 +11,6 @@ import java.util.List;
 public class TransactionDTO {
     private Integer scheduleId;
     private Integer userId;
-    private List<Seat> seats;
+    private List<String> seats;
     private String responseCode;
 }
