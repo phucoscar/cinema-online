@@ -18,5 +18,7 @@ public interface FilmService {
 
     Result deleteFilmById(Integer id);
 
+    Result searchFilmByName(String name);
+
     Result updateAvgScore(Integer filmId);
 }

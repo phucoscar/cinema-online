@@ -97,6 +97,6 @@ public class BookingServiceImpl implements BookingService {
             response.setRatingDtoRepsonse(ratingDtoRepsonse);
             responses.add(response);
         }
-        return Result.success();
+        return Result.success("Success", responses);
     }
 }

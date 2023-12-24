@@ -175,6 +175,12 @@ public class FilmServiceImpl implements FilmService {
         return Result.success("Suceess", film);
     }
 
+    @Override
+    public Result searchFilmByName(String name) {
+        List<Film> films = filmRepository.searchByName(name);
+        return Result.success("Success", films);
+    }
+
     private Date convertToDate(String strDate) throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         return format.parse(strDate);

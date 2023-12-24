@@ -48,4 +48,9 @@ public class FilmController {
     public Result deleteFilmById(@PathVariable Integer id) {
         return filmService.deleteFilmById(id);
     }
+
+    @GetMapping("/search-film-by-name")
+    public Result searchFilmByName(@RequestParam String name) {
+        return filmService.searchFilmByName(name);
+    }
 }

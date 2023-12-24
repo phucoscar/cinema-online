@@ -84,7 +84,8 @@ public class UserServiceImpl implements UserService {
         user.setAddress(dto.getAddress());
         user.setDateOfBirth(dto.getDateOfBirth());
         user.setPhone(dto.getPhone());
-        return Result.success("Success", userRepository.save(user));
+        LoginResponse response = convertToLoginResp(user, "");
+        return Result.success("Success", response);
     }
 
     @Override
