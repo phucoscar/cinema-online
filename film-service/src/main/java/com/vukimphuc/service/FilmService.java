@@ -8,6 +8,9 @@ public interface FilmService {
 
     Result getAllFilms();
 
+    // phan trang
+    Result getFilms(int page, int perPage);
+
     Result getAllFilmsOrderByCreatedDate();
 
     Result createFilm(FilmDto filmDto);

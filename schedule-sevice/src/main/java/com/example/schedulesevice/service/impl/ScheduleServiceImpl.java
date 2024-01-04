@@ -7,11 +7,16 @@ import com.example.schedulesevice.repository.*;
 import com.example.schedulesevice.service.ScheduleService;
 import com.phucvukimcore.base.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +36,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Autowired
     private TicketRepository ticketRepository;
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public Result scheduleShow(ScheduleDto dto) {
@@ -154,6 +162,32 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    public Result findAllCurrentScheduleInCinemaByPage(Integer cinemaId, Integer page, Integer perPage) {
+        Optional<Cinema> op = cinemaRepository.findById(cinemaId);
+        Pageable pageable = PageRequest.of(page - 1, perPage);
+        Page<Schedule> pageSchedules = findScheduleByTimeOptionAndPage(op.get(),  pageable, false);
+
+        List<Schedule> schedules = pageSchedules.getContent();
+
+        List<ScheduleResponse> responses = new ArrayList<>();
+
+        for (Schedule schedule: schedules) {
+            ScheduleResponse response = new ScheduleResponse();
+            response.setSchedule(schedule);
+
+            Room room = schedule.getRoom();
+            int totalSeats = room.getHorizontalSeats() * room.getVerticalSeats();
+            response.setTotalSeats(totalSeats);
+            int booked = ticketRepository.countByScheduleId(schedule.getId());
+            response.setAvailables(totalSeats - booked);
+
+            responses.add(response);
+        }
+
+        return Result.success("Success", responses);
+    }
+
+    @Override
     public Result findAllHistoryScheduleInCinema(Integer cinemaId) {
         Optional<Cinema> op = cinemaRepository.findById(cinemaId);
         if (!op.isPresent()) {
@@ -180,6 +214,32 @@ public class ScheduleServiceImpl implements ScheduleService {
         return Result.success("Success", responses);
     }
 
+    @Override
+    public Result findAllHistoryScheduleInCinemaByPage(Integer cinemaId, Integer page, Integer perPage) {
+        Optional<Cinema> op = cinemaRepository.findById(cinemaId);
+        Pageable pageable = PageRequest.of(page - 1, perPage);
+        Page<Schedule> pageSchedules = findScheduleByTimeOptionAndPage(op.get(),  pageable, true);
+
+        List<Schedule> schedules = pageSchedules.getContent();
+
+        List<ScheduleResponse> responses = new ArrayList<>();
+
+        for (Schedule schedule: schedules) {
+            ScheduleResponse response = new ScheduleResponse();
+            response.setSchedule(schedule);
+
+            Room room = schedule.getRoom();
+            int totalSeats = room.getHorizontalSeats() * room.getVerticalSeats();
+            response.setTotalSeats(totalSeats);
+            int booked = ticketRepository.countByScheduleId(schedule.getId());
+            response.setAvailables(totalSeats - booked);
+
+            responses.add(response);
+        }
+
+        return Result.success("Success", responses);
+    }
+
     private List<Schedule> findScheduleByTimeOption(Cinema cinema, boolean history) {
 
         LocalDateTime now = LocalDateTime.now();
@@ -188,6 +248,19 @@ public class ScheduleServiceImpl implements ScheduleService {
             schedules = scheduleRepository.findByRoom_CinemaAndEndTimeBefore(cinema, now);
         } else {
             schedules = scheduleRepository.findByRoom_CinemaAndEndTimeAfter(cinema, now);
+        }
+
+        return schedules;
+    }
+
+    private Page<Schedule> findScheduleByTimeOptionAndPage(Cinema cinema, Pageable pageable, boolean history) {
+
+        LocalDateTime now = LocalDateTime.now();
+        Page<Schedule> schedules;
+        if (history) {
+            schedules = scheduleRepository.findByRoom_CinemaAndEndTimeBeforeOrderByStartTimeDesc(cinema, now, pageable);
+        } else {
+            schedules = scheduleRepository.findByRoom_CinemaAndEndTimeAfterOrderByStartTimeDesc(cinema, now, pageable);
         }
 
         return schedules;

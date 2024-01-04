@@ -34,6 +34,11 @@ public class FilmController {
         return filmService.getAllFilms();
     }
 
+    @GetMapping("/films")
+    public Result getFilms( @RequestParam(defaultValue = "0") int page,
+                            @RequestParam(defaultValue = "5") int perPage) {
+        return filmService.getFilms(page, perPage);
+    }
     @GetMapping("/update-score")
     public Result updateFilmRatingScore(@RequestParam Integer filmId) {
         return filmService.updateAvgScore(filmId);

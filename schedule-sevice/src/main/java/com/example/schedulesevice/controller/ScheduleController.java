@@ -27,9 +27,23 @@ public class ScheduleController {
         return scheduleService.findAllCurrentScheduleInCinema(cinemaId);
     }
 
+    @GetMapping("/schedule-by-cinema") // lay schedule theo rap
+    public Result getCurrentScheduleInCinemaByPage(@RequestParam Integer cinemaId,
+                                                   @RequestParam(defaultValue = "0") Integer page,
+                                                   @RequestParam(defaultValue = "5") Integer perPage) {
+        return scheduleService.findAllCurrentScheduleInCinemaByPage(cinemaId, page, perPage);
+    }
+
     @PostMapping("/schedule-history-by-cinema")
     public Result getHistoryScheduleInCinema(@RequestParam Integer cinemaId) {
         return scheduleService.findAllHistoryScheduleInCinema(cinemaId);
+    }
+
+    @GetMapping("/schedule-history-by-cinema")
+    public Result getHistoryScheduleInCinemaByPage(@RequestParam Integer cinemaId,
+                                                   @RequestParam(defaultValue = "0") Integer page,
+                                                   @RequestParam(defaultValue = "5") Integer perPage) {
+        return scheduleService.findAllHistoryScheduleInCinemaByPage(cinemaId, page, perPage);
     }
 
     @PostMapping("/schedule-by-film") // lay tat ca schedule theo film

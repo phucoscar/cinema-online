@@ -47,6 +47,9 @@ public class AuthController {
             ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(customUserDetails);
             token = jwtCookie.getValue();
             User user = userService.findByUsername(username);
+            if (user.isBlocked()) {
+                return Result.fail("Tài khoản của bạn đã bị khóa, vui lòng liên hệ quản trị viên để biết thêm chi tiết.");
+            }
             LoginResponse response = userService.convertToLoginResp(user, token);
             return new Result(200, "Success", response);
         } catch (Exception e) {

@@ -15,7 +15,11 @@ public interface ScheduleService {
 
     Result findAllCurrentScheduleInCinema(Integer cinemaId);
 
+    Result findAllCurrentScheduleInCinemaByPage(Integer cinemaId, Integer page, Integer perPage);
+
     Result findAllHistoryScheduleInCinema(Integer cinemaId);
+
+    Result findAllHistoryScheduleInCinemaByPage(Integer cinemaId, Integer page, Integer perPage);
 
     Result findAllScheduleInCinemaByDay(Integer cinemaId, String date);
 

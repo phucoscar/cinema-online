@@ -2,9 +2,12 @@ package com.vukimphuc.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phucvukimcore.base.Result;
+import com.phucvukimcore.util.JsonUtil;
 import com.vukimphuc.cloudinary.CloudinaryService;
 import com.vukimphuc.dto.request.EditFilmDto;
 import com.vukimphuc.dto.request.FilmDto;
+import com.vukimphuc.dto.response.ListFilmResponse;
+import com.vukimphuc.dto.response.PageInfo;
 import com.vukimphuc.entity.Film;
 import com.vukimphuc.entity.Rating;
 import com.vukimphuc.entity.Thumnail;
@@ -15,8 +18,10 @@ import com.vukimphuc.repository.RatingRepository;
 import com.vukimphuc.repository.ThumbnailsRepository;
 import com.vukimphuc.service.FilmService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
@@ -24,6 +29,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,10 +52,58 @@ public class FilmServiceImpl implements FilmService {
     @Autowired
     private RatingRepository ratingRepository;
 
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
     @Override
     public Result getAllFilms() {
-        List<Film> films = filmRepository.findAll();
+        List<Film> films = null;
+
+        try {
+            films = (List<Film>) redisTemplate.opsForValue().get("films");
+        } catch (Exception e) {
+            return Result.fail("Xảy ra lỗi trong quá trình chuyển đồi dữ liệu từ Redis");
+        }
+
+        if (films == null || films.size() == 0) {
+            films = filmRepository.findAll();
+            redisTemplate.delete("films");
+            redisTemplate.opsForValue().set("films", films);
+            redisTemplate.expire("films", 200, TimeUnit.SECONDS);
+        }
+
         return Result.success("Success", films);
+    }
+
+    @Override
+    public Result getFilms(int page, int perPage) {
+        List<Film> films = null;
+
+        try {
+           films = (List<Film>) redisTemplate.opsForValue().get("films");
+        } catch (Exception e) {
+            return Result.fail("Xảy ra lỗi trong quá trình chuyển đồi dữ liệu từ Redis");
+        }
+
+        if (films == null || films.size() == 0) {
+            films = filmRepository.findAll();
+            redisTemplate.delete("films");
+            redisTemplate.opsForValue().set("films", films);
+            redisTemplate.expire("films", 200, TimeUnit.SECONDS);
+        }
+
+        int start = (page - 1) * perPage;
+        int end = Math.min(start + perPage, films.size());
+
+        ListFilmResponse response = new ListFilmResponse();
+        response.setFilms(films.subList(start, end));
+
+        PageInfo pageInfo = new PageInfo();
+        pageInfo.setTotalItems(films.size());
+        pageInfo.setPageSize(end-start);
+        pageInfo.setTotalPages(films.size() % perPage == 0? films.size() / perPage : films.size() / perPage + 1);
+        response.setPageInfo(pageInfo);
+        return Result.success("Success", response);
     }
 
     @Override
@@ -177,7 +231,12 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Result searchFilmByName(String name) {
+        if (name == null) {
+            return Result.fail("Không tìm thấy phim");
+        }
         List<Film> films = filmRepository.searchByName(name);
+        if (films.isEmpty())
+            return Result.fail("Không tìm thấy phim");
         return Result.success("Success", films);
     }
 
