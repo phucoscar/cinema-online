@@ -85,4 +85,9 @@ public class AuthController {
         Result result = userService.changePassword(userId, oldPassword, newPassword);
         return result ;
     }
+
+    @PostMapping("/forgot-password")
+    public Result forgotPassword(@RequestBody String email) {
+        return userService.forgotPassword(email);
+    }
 }

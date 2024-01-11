@@ -10,13 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,8 +35,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Autowired
     private TicketRepository ticketRepository;
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public Result scheduleShow(ScheduleDto dto) {
@@ -164,10 +160,17 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public Result findAllCurrentScheduleInCinemaByPage(Integer cinemaId, Integer page, Integer perPage) {
         Optional<Cinema> op = cinemaRepository.findById(cinemaId);
-        Pageable pageable = PageRequest.of(page - 1, perPage);
-        Page<Schedule> pageSchedules = findScheduleByTimeOptionAndPage(op.get(),  pageable, false);
+        if (!op.isPresent()) {
+            return Result.fail("Rạp phim không tồn tại");
+        }
 
-        List<Schedule> schedules = pageSchedules.getContent();
+        List<Schedule> schedules = findScheduleByTimeOption(op.get(), false);
+        Collections.sort(schedules, Comparator.comparing(Schedule::getStartTime));
+        Collections.reverse(schedules);
+
+        int start = (page - 1) * perPage;
+        int end = Math.min(start + perPage, schedules.size());
+
 
         List<ScheduleResponse> responses = new ArrayList<>();
 
@@ -183,8 +186,15 @@ public class ScheduleServiceImpl implements ScheduleService {
 
             responses.add(response);
         }
-
-        return Result.success("Success", responses);
+        ListScheduleResponseByPage res = new ListScheduleResponseByPage();
+        res.setScheduleResponseList(responses.subList(start, end));
+        PageInfo pageInfo = new PageInfo();
+        pageInfo.setTotalItems(schedules.size());
+        pageInfo.setPageSize(end-start);
+        pageInfo.setTotalPages(schedules.size() % perPage == 0? schedules.size() / perPage : schedules.size() / perPage + 1);
+        res.setPageInfo(pageInfo);
+        res.setPageInfo(pageInfo);
+        return Result.success("Success", res);
     }
 
     @Override
@@ -217,10 +227,17 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public Result findAllHistoryScheduleInCinemaByPage(Integer cinemaId, Integer page, Integer perPage) {
         Optional<Cinema> op = cinemaRepository.findById(cinemaId);
-        Pageable pageable = PageRequest.of(page - 1, perPage);
-        Page<Schedule> pageSchedules = findScheduleByTimeOptionAndPage(op.get(),  pageable, true);
+        if (!op.isPresent()) {
+            return Result.fail("Rạp phim không tồn tại");
+        }
 
-        List<Schedule> schedules = pageSchedules.getContent();
+        List<Schedule> schedules = findScheduleByTimeOption(op.get(), true);
+        Collections.sort(schedules, Comparator.comparing(Schedule::getStartTime));
+        Collections.reverse(schedules);
+
+        int start = (page - 1) * perPage;
+        int end = Math.min(start + perPage, schedules.size());
+
 
         List<ScheduleResponse> responses = new ArrayList<>();
 
@@ -236,8 +253,15 @@ public class ScheduleServiceImpl implements ScheduleService {
 
             responses.add(response);
         }
-
-        return Result.success("Success", responses);
+        ListScheduleResponseByPage res = new ListScheduleResponseByPage();
+        res.setScheduleResponseList(responses.subList(start, end));
+        PageInfo pageInfo = new PageInfo();
+        pageInfo.setTotalItems(schedules.size());
+        pageInfo.setPageSize(end-start);
+        pageInfo.setTotalPages(schedules.size() % perPage == 0? schedules.size() / perPage : schedules.size() / perPage + 1);
+        res.setPageInfo(pageInfo);
+        res.setPageInfo(pageInfo);
+        return Result.success("Success", res);
     }
 
     private List<Schedule> findScheduleByTimeOption(Cinema cinema, boolean history) {

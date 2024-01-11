@@ -26,7 +26,16 @@ public class JwtAuthenticationFilter implements GlobalFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
-        List<String> apiEndpoints = Arrays.asList("/signin", "/signup", "/refreshtoken", "/SSO/sign-in-google", "/api/v1/film", "/api/v1/cinema", "/api/v1/schedule/cinema-by-day");
+        List<String> apiEndpoints = Arrays.asList(
+                "/signin",
+                "/signup",
+                "/refreshtoken",
+                "/SSO/sign-in-google",
+                "/api/v1/film",
+                "/api/v1/cinema",
+                "/api/v1/schedule/cinema-by-day",
+                "/forgot-password"
+        );
         Predicate<ServerHttpRequest> isApiSecured = r -> apiEndpoints.stream()
                 .noneMatch(uri -> r.getURI().getPath().contains(uri));
         if (isApiSecured.test(request)) {

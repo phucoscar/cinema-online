@@ -33,4 +33,6 @@ public interface UserService {
     Result findAllAdminAccount();
 
     Result findAllAdminAccountWithoutCinema();
+
+    Result forgotPassword(String email);
 }

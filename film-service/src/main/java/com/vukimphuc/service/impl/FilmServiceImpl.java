@@ -18,6 +18,8 @@ import com.vukimphuc.repository.RatingRepository;
 import com.vukimphuc.repository.ThumbnailsRepository;
 import com.vukimphuc.service.FilmService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -57,41 +59,37 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Result getAllFilms() {
-        List<Film> films = null;
-
-        try {
-            films = (List<Film>) redisTemplate.opsForValue().get("films");
-        } catch (Exception e) {
-            return Result.fail("Xảy ra lỗi trong quá trình chuyển đồi dữ liệu từ Redis");
-        }
-
-        if (films == null || films.size() == 0) {
-            films = filmRepository.findAll();
-            redisTemplate.delete("films");
-            redisTemplate.opsForValue().set("films", films);
-            redisTemplate.expire("films", 200, TimeUnit.SECONDS);
-        }
-
+//        List<Film> films = null;
+//
+//        try {
+//            films = (List<Film>) redisTemplate.opsForValue().get("films");
+//        } catch (Exception e) {
+//            return Result.fail("Xảy ra lỗi trong quá trình chuyển đồi dữ liệu từ Redis");
+//        }
+//
+//        if (films == null || films.size() == 0) {
+//            films = filmRepository.findAll();
+//            redisTemplate.delete("films");
+//            redisTemplate.opsForValue().set("films", films);
+//            redisTemplate.expire("films", 200, TimeUnit.SECONDS);
+//        }
+        List<Film> films = filmRepository.findAll();
         return Result.success("Success", films);
     }
 
     @Override
     public Result getFilms(int page, int perPage) {
-        List<Film> films = null;
-
-        try {
-           films = (List<Film>) redisTemplate.opsForValue().get("films");
-        } catch (Exception e) {
-            return Result.fail("Xảy ra lỗi trong quá trình chuyển đồi dữ liệu từ Redis");
-        }
-
-        if (films == null || films.size() == 0) {
-            films = filmRepository.findAll();
-            redisTemplate.delete("films");
-            redisTemplate.opsForValue().set("films", films);
-            redisTemplate.expire("films", 200, TimeUnit.SECONDS);
-        }
-
+//        List<Film> films = null;
+//        films = (List<Film>) redisTemplate.opsForValue().get("films");
+//
+//        if (films == null || films.size() == 0) {
+//            films = filmRepository.findAll();
+//            redisTemplate.delete("films");
+//            redisTemplate.opsForValue().set("films", films);
+//            redisTemplate.expire("films", 200, TimeUnit.SECONDS);
+//        }
+//
+        List<Film> films = filmRepository.findAll();
         int start = (page - 1) * perPage;
         int end = Math.min(start + perPage, films.size());
 

@@ -229,6 +229,16 @@ public class UserServiceImpl implements UserService {
         return Result.success("Success", response);
     }
 
+    @Override
+    public Result forgotPassword(String email) {
+        Optional<User> op = userRepository.findByEmail(email);
+
+        if (!op.isPresent()) {
+            return Result.fail("Email không tồn tại trong hệ thống");
+        }
+        return Result.success("Success", "");
+    }
+
     public String errorUsername(String username) {
         if (isContainsSpecialCharacter(username)) {
             return "Tên đăng nhập không được chứa ký tự đặc biệt";
