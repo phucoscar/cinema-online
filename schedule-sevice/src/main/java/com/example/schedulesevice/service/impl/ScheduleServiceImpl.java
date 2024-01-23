@@ -52,6 +52,10 @@ public class ScheduleServiceImpl implements ScheduleService {
         if (!op2.isPresent())
             return Result.fail("Không tìm thấy phòng");
         Room room = op2.get();
+        boolean isRoomAvailable = isRoomAvailable(room, startTime, endTime);
+        if (!isRoomAvailable) {
+            return Result.fail("Phòng đã được sử dụng trong thời gian yêu cầu");
+        }
         Schedule schedule = new Schedule();
         schedule.setStartTime(startTime);
         schedule.setEndTime(endTime);
@@ -386,6 +390,9 @@ public class ScheduleServiceImpl implements ScheduleService {
         Cinema cinema = op.get();
         LocalDateTime start = convertToLocalDateTimeFromString(startDate + "T00:00:00");
         LocalDateTime end = convertToLocalDateTimeFromString(endDate + "T23:59:59");
+        if (end.isBefore(start)) {
+            return Result.fail("Thời gian không hợp lệ");
+        }
         List<Schedule> schedules = scheduleRepository.findAllByRoom_CinemaAndStartTimeAfterAndStartTimeBefore(cinema, start, end);
         long totalRevenue = 0L;
         List<ScheduleRevenueStatistic> revenueSchedules = new ArrayList<>();
@@ -449,5 +456,12 @@ public class ScheduleServiceImpl implements ScheduleService {
     private boolean isBooked(int scheduleId) {
         int bookedNumber = ticketRepository.countByScheduleId(scheduleId);
         return bookedNumber > 0;
+    }
+
+    private boolean isRoomAvailable(Room room, LocalDateTime startTime, LocalDateTime endTime) {
+        List<Schedule> conflictingSchedules = scheduleRepository.findByRoomAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
+                room, endTime, startTime);
+
+        return conflictingSchedules.isEmpty();
     }
 }

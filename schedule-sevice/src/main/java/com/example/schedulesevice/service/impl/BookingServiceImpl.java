@@ -16,9 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -77,6 +75,7 @@ public class BookingServiceImpl implements BookingService {
         }
         User user = op.get();
         List<Booking> bookings = bookingRepository.findAllByUserId(user.getId());
+        Collections.sort(bookings, Comparator.comparing(Booking::getBookingTime, Comparator.reverseOrder()));
         List<HistoryBookingResponse> responses = new ArrayList<>();
         for (Booking booking: bookings) {
             HistoryBookingResponse response = new HistoryBookingResponse();

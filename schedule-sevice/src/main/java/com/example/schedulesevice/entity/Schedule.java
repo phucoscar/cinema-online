@@ -29,4 +29,16 @@ public class Schedule {
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)
     private Room room;
+
+    @Column(name = "createdAt")
+    private LocalDateTime createdAt;
+
+    @Column(name = "lastModifyAt")
+    private LocalDateTime lastModifyAt;
+
+    @Column(name = "createdBy")
+    private String createdBy;
+
+    @Column(name = "lastModifyBy")
+    private String lastModifyBy;
 }

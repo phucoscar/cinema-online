@@ -119,7 +119,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(role);
         userRepository.save(user);
-        //emailSenderService.sendMailRegister(dto.getEmail(), dto.getUsername(), dto.getPassword());
+        emailSenderService.sendMailRegister(dto.getEmail(), dto.getUsername(), dto.getPassword());
         return new Result(200, "Success", user);
     }
 

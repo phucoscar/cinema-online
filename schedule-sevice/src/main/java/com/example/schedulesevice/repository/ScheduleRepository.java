@@ -1,6 +1,7 @@
 package com.example.schedulesevice.repository;
 
 import com.example.schedulesevice.entity.Cinema;
+import com.example.schedulesevice.entity.Room;
 import com.example.schedulesevice.entity.Schedule;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,4 +28,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Integer> {
     Page<Schedule> findByRoom_CinemaAndEndTimeAfterOrderByStartTimeDesc(Cinema cinema, LocalDateTime time, Pageable pageable);
 
     List<Schedule> findAllByRoom_CinemaAndStartTimeAfterAndStartTimeBefore(Cinema cinema, LocalDateTime start, LocalDateTime end);
+
+    List<Schedule> findByRoomAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(Room room, LocalDateTime startTime, LocalDateTime endTime);
 }

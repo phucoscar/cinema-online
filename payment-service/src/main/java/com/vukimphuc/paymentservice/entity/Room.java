@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -33,5 +34,17 @@ public class Room {
     @OneToMany(mappedBy = "room", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Schedule> schedules;
+
+    @Column(name = "createdAt")
+    private LocalDateTime createdAt;
+
+    @Column(name = "lastModifyAt")
+    private LocalDateTime lastModifyAt;
+
+    @Column(name = "createdBy")
+    private String createdBy;
+
+    @Column(name = "lastModifyBy")
+    private String lastModifyBy;
 }
 
