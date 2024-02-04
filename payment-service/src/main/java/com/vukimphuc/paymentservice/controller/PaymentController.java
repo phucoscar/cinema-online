@@ -47,6 +47,7 @@ public class PaymentController {
 
     /*
     * TODO: xử lý bất đồng bộ: Khi 2 người cùng đặt cùng vị trí chỗ ngồi
+    *  sử dụng queue
     * */
     @PostMapping("/result-info")
     public Result transactionInfor(@RequestBody TransactionDTO transactionDTO){
